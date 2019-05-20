@@ -77,7 +77,8 @@ On Error GoTo stop_macros
             Set rngTemp = Nothing
         End If
         
-        If objDP.LastRow > objDP.FirstRow Then
+        If objDP.LastRow >= objDP.FirstRow And objBExWS.Cells(objDP.DPOffsetY, objDP.DPOffsetX) <> MSG_NO_VAR And _
+           objBExWS.Cells(objDP.DPOffsetY, objDP.DPOffsetX) <> MSG_NO_DATA Then
             Dim RR As Long ' строки в исходники
            
             Dim sKey As String
