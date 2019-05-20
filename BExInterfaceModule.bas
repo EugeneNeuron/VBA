@@ -79,10 +79,10 @@ On Error GoTo stop_macros
         
         If objDP.LastRow >= objDP.FirstRow And objBExWS.Cells(objDP.DPOffsetY, objDP.DPOffsetX) <> MSG_NO_VAR And _
            objBExWS.Cells(objDP.DPOffsetY, objDP.DPOffsetX) <> MSG_NO_DATA Then
+           
             Dim RR As Long ' строки в исходники
            
             Dim sKey As String
-            RR = REP_STA_ROW
             
             Dim dblTemp As Double
             'Проходим все строки
@@ -93,61 +93,97 @@ On Error GoTo stop_macros
                 If InCollection(colO14, sKey) = False Then
                 
                     Set objGKPZ = New clGKPZ
-                    objGKPZ.sPosition = wsO14.Cells(RR, 4)
+                    objGKPZ.sPosition = wsO14.Cells(lngRow, 4)
+                    objGKPZ.sLotID = wsO14.Cells(lngRow, 3)
+                    objGKPZ.sTitleName = CaptionCon(wsO14, lngRow, 20, 8)
+                    objGKPZ.sNetPower = wsO14.Cells(lngRow, 19)
+                    objGKPZ.sName = CaptionCon(wsO14, lngRow, 12, 5)
+                    objGKPZ.sOrgBuy = wsO14.Cells(lngRow, 7)
+                    objGKPZ.sOrgBuy2 = wsO14.Cells(lngRow, 2)
+                    objGKPZ.sPlanPositionSum = wsO14.Cells(lngRow, 30)
+                    objGKPZ.sAttachType = wsO14.Cells(lngRow, 5)
+                    objGKPZ.sMethodBuy = wsO14.Cells(lngRow, 6)
+                    objGKPZ.sDateStartProcess = wsO14.Cells(lngRow, 28)
+                    objGKPZ.sDateCloseADeal = wsO14.Cells(lngRow, 11)
+                    objGKPZ.sPlanDate = wsO14.Cells(lngRow, 8)
+                    objGKPZ.sRowPos = colO14.Count + 1
+
                     colO14.Add objGKPZ, sKey
                     Set objGKPZ = Nothing
-                    
-                    dblTemp = 0
-                    wsReport.Cells(RR, 21) = CStr(wsO14.Cells(lngRow, POS_ID))
-                    wsReport.Cells(RR, 22) = "" 'Replace(CStr(wsO14.Cells(lngRow, LOT_ID)), "Не присвоено", "")
-                    wsReport.Cells(RR, 1) = RR - REP_STA_ROW + 1
-                    wsReport.Cells(RR, 3) = "'" & Replace(CStr(wsO14.Cells(lngRow, 9)), "#", "")
-                    strTmp = CaptionCon(wsO14, lngRow, 19, 8)
-                    wsReport.Cells(RR, 2) = strTmp
-                    wsReport.Cells(RR, 4) = "" 'Пусто
-                    wsReport.Cells(RR, 5) = "" 'Пусто
-                    wsReport.Cells(RR, 6) = "" 'Пусто
-                    wsReport.Cells(RR, 7) = Replace(CStr(wsO14.Cells(lngRow, 18)), "#", "")
-                    wsReport.Cells(RR, 8) = "" 'Пусто
-                    wsReport.Cells(RR, 9) = Replace(CStr(wsO14.Cells(lngRow, 18)), "#", "")
-                    wsReport.Cells(RR, 10) = "" 'Пусто
-                    wsReport.Cells(RR, 11) = "" 'Пусто
-                    strTmp = CaptionCon(wsO14, lngRow, 11, 5)
-                    wsReport.Cells(RR, 12) = strTmp
-                    If CStr(wsO14.Cells(lngRow, 6)) = "Не присвоено" Then
-                        If CStr(wsO14.Cells(lngRow, 2)) <> "Не присвоено" Then
-                            wsReport.Cells(RR, 13) = CStr(wsO14.Cells(lngRow, 2))
-                        End If
-                    Else
-                        wsReport.Cells(RR, 13) = CStr(wsO14.Cells(lngRow, 6))
-                    End If
-                    
-                    dblTemp = wsO14.Cells(lngRow, 29)
-                     dblTemp = dblTemp / 1.18 'dblTemp - 0.18 * dblTemp
-                    wsReport.Cells(RR, 14).Value = Round(dblTemp, 2) 'Format$(dblTemp, "###0.00")  '
-                    wsReport.Cells(RR, 15) = "" 'Пусто
-                    wsReport.Cells(RR, 16) = CStr(wsO14.Cells(lngRow, 5)) ' Format$(dblTemp, "#,##0.0") '
-                    
-                    wsReport.Cells(RR, 17) = Replace(CStr(wsO14.Cells(lngRow, 27)), "#", "")
-                    wsReport.Cells(RR, 18) = Replace(CStr(wsO14.Cells(lngRow, 10)), "#", "")
-                    wsReport.Cells(RR, 19) = Replace(CStr(wsO14.Cells(lngRow, 7)), "#", "")
-                    RR = RR + 1
                 End If
-               
-                
             Next lngRow
+            
+            'Заполнение инв. проектов у заявки/позиции START
+            For lngRow = 2 To ZR1DS405.Range("A" & Rows.Count).End(xlUp).Row
+                strTmp = CStr(ZR1DS405.Cells(lngRow, 1))
+                If InCollection(colO14, strTmp) = True And CStr(ZR1DS405.Cells(lngRow, 2)) <> "#" Then
+                    If colO14(strTmp).sProjCode = "" Then
+                        colO14(strTmp).sProjCode = CStr(ZR1DS405.Cells(lngRow, 2))
+                    ElseIf InStr(1, CStr(colO14(strTmp).sProjCode), CStr(ZR1DS405.Cells(lngRow, 2))) = 0 Then
+                        colO14(strTmp).sProjCode = colO14(strTmp).sProjCode & Chr(10) & CStr(ZR1DS405.Cells(lngRow, 2))
+                    End If
+                End If
+            Next lngRow
+            'Заполнение инв. проектов у заявки/позиции END
+            
         End If
-        RR = RR - 1
-        
-        If RR > REP_STA_ROW Then
+            
+
+        If colO14.Count <> 0 Then
+            Dim ReportRow As Integer: ReportRow = REP_STA_ROW
+            'Dim SingleRow as clGKPZ
+            'Set SingleRow = New clGKPZ
+            Dim SingleRow As Variant
+            For Each SingleRow In colO14
+                wsReport.Cells(ReportRow, 21) = CStr(SingleRow.sPosition)
+                wsReport.Cells(ReportRow, 22) = Replace(CStr(SingleRow.sLotID), "Не присвоено", "")
+                wsReport.Cells(ReportRow, 1) = SingleRow.sRowPos
+                wsReport.Cells(ReportRow, 3) = "'" & Replace(CStr(SingleRow.sProjCode), "#", "")
+                wsReport.Cells(ReportRow, 2) = SingleRow.sTitleName
+                wsReport.Cells(ReportRow, 4) = "" 'Пусто
+                wsReport.Cells(ReportRow, 5) = "" 'Пусто
+                wsReport.Cells(ReportRow, 6) = "" 'Пусто
+                wsReport.Cells(ReportRow, 7) = Replace(CStr(SingleRow.sNetPower), "#", "")
+                wsReport.Cells(ReportRow, 8) = "" 'Пусто
+                wsReport.Cells(ReportRow, 9) = Replace(CStr(SingleRow.sNetPower), "#", "")
+                wsReport.Cells(ReportRow, 10) = "" 'Пусто
+                wsReport.Cells(ReportRow, 11) = "" 'Пусто
+                wsReport.Cells(ReportRow, 12) = SingleRow.sName
+                If CStr(SingleRow.sOrgBuy) = "Не присвоено" Then
+                    If CStr(SingleRow.sOrgBuy2) <> "Не присвоено" Then
+                        wsReport.Cells(ReportRow, 13) = CStr(SingleRow.sOrgBuy2)
+                    End If
+                Else
+                    wsReport.Cells(ReportRow, 13) = CStr(SingleRow.sOrgBuy)
+                End If
+                
+                'dblTemp = wsO14.Cells(lngRow, 30)
+                'dblTemp = dblTemp '/ 1.18 dblTemp - 0.18 * dblTemp
+                'wsReport.Cells(ReportRow, 14).Value = Round(dblTemp, 2) 'Format$(dblTemp, "###0.00")  '
+                wsReport.Cells(ReportRow, 14).NumberFormat = "#,##0.00"
+                'wsReport.Cells(ReportRow, 14) = VBA.Format$(SingleRow.sPlanPositionSum, "#,##0.00")
+                wsReport.Cells(ReportRow, 14) = SingleRow.sPlanPositionSum
+                wsReport.Cells(ReportRow, 14).HorizontalAlignment = xlLeft
+                'wsReport.Cells(ReportRow, 14).Style = "Comma"
+                wsReport.Cells(ReportRow, 15) = Replace(CStr(SingleRow.sAttachType), "Не присвоено", "")
+                wsReport.Cells(ReportRow, 16) = CStr(SingleRow.sMethodBuy) ' Format$(dblTemp, "#,##0.0") '
+                
+                wsReport.Cells(ReportRow, 17) = Replace(CStr(SingleRow.sDateStartProcess), "#", "")
+                wsReport.Cells(ReportRow, 18) = Replace(CStr(SingleRow.sDateCloseADeal), "#", "")
+                wsReport.Cells(ReportRow, 19) = Replace(CStr(SingleRow.sPlanDate), "#", "")
+                ReportRow = ReportRow + 1
+
+            Next SingleRow
+
+            RR = REP_STA_ROW + colO14.Count - 1
             'Очищаем область ниже полученных данных(область предыдущего построения)
             Set rngTemp = objRprtWS.Range(objRprtWS.Cells(REP_STA_ROW, REP_STA_COL), _
                                             objRprtWS.Cells(RR, REP_END_COL))
             Range_Format rngTemp
             Set rngTemp = Nothing
+
         End If
-        
-        
+
         Call Completion(objRprtWS)
         Application.StatusBar = "Формировании отчета завершено"
     End If
