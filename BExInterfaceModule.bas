@@ -93,7 +93,21 @@ On Error GoTo stop_macros
                 If InCollection(colO14, sKey) = False Then
                 
                     Set objGKPZ = New clGKPZ
-                    objGKPZ.sPosition = wsO14.Cells(RR, 4)
+                    objGKPZ.sPosition = wsO14.Cells(lngRow, 4)
+                    objGKPZ.sLotID = wsO14.Cells(lngRow, 3)
+                    objGKPZ.sTitleName = CaptionCon(wsO14, lngRow, 20, 8)
+                    objGKPZ.sNetPower = wsO14.Cells(lngRow, 19)
+                    objGKPZ.sName = CaptionCon(wsO14, lngRow, 12, 5)
+                    objGKPZ.sOrgBuy = wsO14.Cells(lngRow, 7)
+                    objGKPZ.sOrgBuy2 = wsO14.Cells(lngRow, 2)
+                    objGKPZ.sPlanPositionSum = wsO14.Cells(lngRow, 30)
+                    objGKPZ.sAttachType = wsO14.Cells(lngRow, 5)
+                    objGKPZ.sMethodBuy = wsO14.Cells(lngRow, 6)
+                    objGKPZ.sDateStartProcess = wsO14.Cells(lngRow, 28)
+                    objGKPZ.sDateCloseADeal = wsO14.Cells(lngRow, 11)
+                    objGKPZ.sPlanDate = wsO14.Cells(lngRow, 8)
+                    objGKPZ.sRowPos = colO14.Count + 1
+
                     colO14.Add objGKPZ, sKey
                     Set objGKPZ = Nothing
                     
